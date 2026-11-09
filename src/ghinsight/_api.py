@@ -2,7 +2,7 @@
 
 This is the only module that talks to the network. It deliberately exposes just
 two primitives — a single GET and a paginated GET — so that the higher-level
-:mod:`github_analysis.fetch` module reads as a description of *which* endpoints
+:mod:`ghinsight.fetch` module reads as a description of *which* endpoints
 make up the raw dataset, not as HTTP plumbing.
 """
 

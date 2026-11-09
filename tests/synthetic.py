@@ -1,6 +1,6 @@
 """Deterministic synthetic GitHub Actions cache for offline tests and docs.
 
-This writes the same on-disk cache layout that ``github-analysis fetch`` would
+This writes the same on-disk cache layout that ``ghinsight fetch`` would
 produce, so the entire stage 2/3 pipeline can be exercised without a network or
 a token. The numbers are small and hand-chosen so tests can assert exact values.
 """

@@ -1,4 +1,4 @@
-"""Command-line interface for github-analysis.
+"""Command-line interface for ghinsight.
 
 The CLI is intentionally thin: each command parses arguments, builds an
 immutable config or dataset, and delegates to the library. The three pipeline

@@ -1,4 +1,4 @@
-# github-analysis
+# ghinsight
 
 Reusable, auditable tools for analyzing **GitHub Actions** usage and performance
 across any GitHub organization or user account.
@@ -21,9 +21,9 @@ autoapi/index
 ## Quick start
 
 ```bash
-uv tool install github-analysis
+uv tool install ghinsight
 export GITHUB_TOKEN=...            # a token that can read Actions metadata
-github-analysis recreate --config analysis.toml
+ghinsight recreate --config analysis.toml
 ```
 
 See the {doc}`tutorials/cli` for the command-line walkthrough and the
@@ -33,11 +33,11 @@ See the {doc}`tutorials/cli` for the command-line walkthrough and the
 
 | Stage | Module | Output |
 | ----- | ------ | ------ |
-| 1. Fetch | {py:mod}`github_analysis.fetch` | cached raw JSON |
-| 2. Dataset (the IR) | {py:mod}`github_analysis.dataset` | {py:class}`~github_analysis.dataset.ActionsDataset` |
-| 3a. Metric tables | {py:mod}`github_analysis.metrics` | usage / performance DataFrames |
-| 3b. Insights | {py:mod}`github_analysis.analysis` | {py:class}`~github_analysis.analysis.UsageSummary`, time-series |
-| 3c. Report | {py:mod}`github_analysis.report` | HTML dashboard + JSON summary |
+| 1. Fetch | {py:mod}`ghinsight.fetch` | cached raw JSON |
+| 2. Dataset (the IR) | {py:mod}`ghinsight.dataset` | {py:class}`~ghinsight.dataset.ActionsDataset` |
+| 3a. Metric tables | {py:mod}`ghinsight.metrics` | usage / performance DataFrames |
+| 3b. Insights | {py:mod}`ghinsight.analysis` | {py:class}`~ghinsight.analysis.UsageSummary`, time-series |
+| 3c. Report | {py:mod}`ghinsight.report` | HTML dashboard + JSON summary |
 
 The design and the reasoning behind the intermediate representation are
 explained in {doc}`design`.

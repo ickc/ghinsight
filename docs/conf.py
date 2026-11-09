@@ -1,11 +1,11 @@
-"""Sphinx configuration for the github-analysis documentation site."""
+"""Sphinx configuration for the ghinsight documentation site."""
 
 from __future__ import annotations
 
 from datetime import date
 
-project = "github-analysis"
-author = "github-analysis contributors"
+project = "ghinsight"
+author = "Kolen Cheung"
 copyright = f"{date.today().year}, {author}"
 
 extensions = [
@@ -33,7 +33,7 @@ nb_execution_raise_on_error = True
 
 # -- AutoAPI ----------------------------------------------------------------
 autoapi_type = "python"
-autoapi_dirs = ["../src/github_analysis"]
+autoapi_dirs = ["../src/ghinsight"]
 autoapi_options = [
     "members",
     "undoc-members",
@@ -53,6 +53,6 @@ intersphinx_mapping = {
 
 # -- HTML -------------------------------------------------------------------
 html_theme = "furo"
-html_title = "github-analysis"
+html_title = "ghinsight"
 # ``.py`` is registered as a notebook source above, so exclude this config file.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "conf.py"]

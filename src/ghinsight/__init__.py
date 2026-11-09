@@ -2,12 +2,12 @@
 
 A three-stage, functional pipeline:
 
-1. **fetch** (:mod:`github_analysis.fetch`) — cache raw runs/jobs from GitHub.
-2. **dataset** (:mod:`github_analysis.dataset`) — parse the cache into the
+1. **fetch** (:mod:`ghinsight.fetch`) — cache raw runs/jobs from GitHub.
+2. **dataset** (:mod:`ghinsight.dataset`) — parse the cache into the
    canonical tidy intermediate representation, :class:`ActionsDataset`.
-3. **analysis** — derive metric tables (:mod:`github_analysis.metrics`),
-   insights (:mod:`github_analysis.analysis`), and a report
-   (:mod:`github_analysis.report`) — all pure projections of the dataset.
+3. **analysis** — derive metric tables (:mod:`ghinsight.metrics`),
+   insights (:mod:`ghinsight.analysis`), and a report
+   (:mod:`ghinsight.report`) — all pure projections of the dataset.
 """
 
 from __future__ import annotations

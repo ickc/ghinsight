@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "github-analysis"
+name = "ghinsight"
 version = "0.1.0"
 description = "Reusable tools for GitHub Actions metrics analysis"
 readme = "README.md"
@@ -29,7 +29,7 @@ classifiers = [
 ]
 
 [project.scripts]
-github-analysis = "github_analysis.cli:app"
+ghinsight = "ghinsight.cli:app"
 
 [project.urls]
 Homepage = "https://github.com/ickc/github-analysis"
@@ -52,7 +52,7 @@ docs = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/github_analysis"]
+packages = ["src/ghinsight"]
 
 [tool.uv]
 package = true
@@ -71,12 +71,12 @@ rich = ">=13.0"
 pytest = ">=8.0"
 
 [tool.pixi.pypi-dependencies]
-github-analysis = { path = ".", editable = true }
+ghinsight = { path = ".", editable = true }
 
 [tool.pixi.tasks]
 check = { cmd = "python -m compileall src bin", description = "Compile Python sources." }
 test = { cmd = "pytest", description = "Run the offline test suite." }
-help = { cmd = "github-analysis --help", description = "Show the CLI help." }
+help = { cmd = "ghinsight --help", description = "Show the CLI help." }
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

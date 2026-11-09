@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import plotly.graph_objects as go
 
-from github_analysis.charts import SCOPE_LABELS, scope_toggle
+from ghinsight.charts import SCOPE_LABELS, scope_toggle
 
 
 def _fig(title: str, n: int) -> go.Figure:

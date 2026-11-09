@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from github_analysis.dataset import ActionsDataset
+from ghinsight.dataset import ActionsDataset
 
 from .synthetic import ORG, write_synthetic_cache
 

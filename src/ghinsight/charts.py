@@ -3,7 +3,7 @@
 Keeping figure construction free of I/O (no file reads, no config objects beyond
 plain values) makes every chart independently testable and lets the report
 module stay a thin assembler. The monthly helpers take the long-form frame from
-:func:`github_analysis.analysis.monthly_usage` and do their own grouping.
+:func:`ghinsight.analysis.monthly_usage` and do their own grouping.
 """
 
 from __future__ import annotations
@@ -262,8 +262,8 @@ def monthly_billed_by_os(
     """Stacked monthly billed-equivalent minutes, split by OS.
 
     ``monthly`` needs ``month``, ``runtime_os`` and ``adj_billed`` columns, as
-    produced by :func:`~github_analysis.analysis.monthly_usage` or
-    :func:`~github_analysis.analysis.billing_monthly_usage`.
+    produced by :func:`~ghinsight.analysis.monthly_usage` or
+    :func:`~ghinsight.analysis.billing_monthly_usage`.
     """
     by_month_os = monthly.groupby(["month", "runtime_os"])["adj_billed"].sum().reset_index()
     fig = go.Figure()

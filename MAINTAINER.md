@@ -1,6 +1,6 @@
 # Maintainer Guide
 
-This package is intended to be published to PyPI as `github-analysis`.
+This package is intended to be published to PyPI as `ghinsight`.
 
 ## Local Release Checks
 
@@ -23,20 +23,20 @@ pixi run help
 Inspect the contents before uploading:
 
 ```bash
-tar -tzf dist/github_analysis-*.tar.gz | sort | head -50
-unzip -l dist/github_analysis-*.whl | sort | head -50
+tar -tzf dist/ghinsight-*.tar.gz | sort | head -50
+unzip -l dist/ghinsight-*.whl | sort | head -50
 ```
 
 ## First PyPI Release
 
 1. Confirm the package name in `pyproject.toml` is available on PyPI. If
-   `github-analysis` is already taken, rename the project before the first
+   `ghinsight` is already taken, rename the project before the first
    release.
 2. Confirm `README.md`, `LICENSE`, project URLs, dependencies, and the console
    script metadata are correct.
 3. Create a PyPI account if needed and enable 2FA.
 4. Configure a PyPI Trusted Publisher for GitHub Actions.
-   - Project name: `github-analysis`
+   - Project name: `ghinsight`
    - Owner: the GitHub repository owner
    - Repository: the GitHub repository name
    - Workflow filename: `release.yml`
@@ -74,8 +74,8 @@ pixi run check
 8. Verify the package page and install path:
 
 ```bash
-uv tool install --force github-analysis
-github-analysis --help
+uv tool install --force ghinsight
+ghinsight --help
 ```
 
 ## Useful References

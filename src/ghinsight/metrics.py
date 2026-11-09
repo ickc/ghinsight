@@ -2,7 +2,7 @@
 
 These reproduce GitHub's *Actions → Metrics* Usage and Performance tables,
 column-for-column, so generated CSVs stay comparable with GitHub's own exports
-(see :mod:`github_analysis.compare`). Each table is described *declaratively* by
+(see :mod:`ghinsight.compare`). Each table is described *declaratively* by
 a :class:`TableSpec`; one small interpreter, :func:`compute_table`, turns a spec
 plus a tidy frame into the output. The workflow-level performance table needs
 run-level wall-clock time and is handled by a dedicated function.

@@ -2,7 +2,7 @@
 
 These CSVs are a *projection* of the canonical dataset, kept so that generated
 output can be diffed against GitHub's own metric exports (see
-:mod:`github_analysis.compare`). They are no longer the intermediate
+:mod:`ghinsight.compare`). They are no longer the intermediate
 representation the analysis is built from.
 """
 

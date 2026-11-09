@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 from github.GithubException import GithubException
 
-from github_analysis import fetch
+from ghinsight import fetch
 
 
 def test_list_account_repos_uses_org_endpoint(monkeypatch):

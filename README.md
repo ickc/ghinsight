@@ -1,4 +1,6 @@
-# github-analysis
+# ghinsight
+
+*Pronounced "gin-sight": the h is silent.*
 
 Reusable, auditable tools for analyzing GitHub Actions usage and performance
 across any GitHub organization **or user account**.
@@ -17,31 +19,31 @@ the full rationale):
 
 | Stage | Module | Output |
 | ----- | ------ | ------ |
-| 1. Fetch | `github_analysis.fetch` | cached raw JSON (verbatim API responses) |
-| 2. Dataset (the IR) | `github_analysis.dataset` | `ActionsDataset` — a tidy per-job / per-run table |
-| 3a. Metric tables | `github_analysis.metrics` | usage / performance DataFrames |
-| 3b. Insights | `github_analysis.analysis` | `UsageSummary`, monthly time-series |
-| 3c. Report | `github_analysis.report` | HTML dashboard + JSON summary |
+| 1. Fetch | `ghinsight.fetch` | cached raw JSON (verbatim API responses) |
+| 2. Dataset (the IR) | `ghinsight.dataset` | `ActionsDataset` — a tidy per-job / per-run table |
+| 3a. Metric tables | `ghinsight.metrics` | usage / performance DataFrames |
+| 3b. Insights | `ghinsight.analysis` | `UsageSummary`, monthly time-series |
+| 3c. Report | `ghinsight.report` | HTML dashboard + JSON summary |
 
 The canonical intermediate representation is a **tidy per-job table** (one row
 per job, with all derived measures and dimensions), not GitHub's aggregate CSV
 exports. Aggregate exports drop per-job timestamps, so they cannot support
 time-series views; the tidy table can, and every other view derives from it.
 GitHub-compatible CSVs are still produced as an *export*
-(`github_analysis.csv_export`) for diffing against GitHub's own metrics.
+(`ghinsight.csv_export`) for diffing against GitHub's own metrics.
 
 ## Install
 
 ```bash
-uv tool install github-analysis
-github-analysis --help
+uv tool install ghinsight
+ghinsight --help
 ```
 
 For local development from a checkout:
 
 ```bash
 uv sync --group dev
-uv run github-analysis --help
+uv run ghinsight --help
 ```
 
 A conda-forge `pixi` environment is also provided:
@@ -69,7 +71,7 @@ unset, the token is read from `~/.config/gh/hosts.yml`.
 ```bash
 mkdir github-actions-report && cd github-actions-report
 $EDITOR analysis.toml          # see examples/analysis.toml
-github-analysis recreate --config analysis.toml
+ghinsight recreate --config analysis.toml
 ```
 
 `recreate` runs fetch → CSV export → dashboard end to end. The dashboard is
@@ -82,14 +84,14 @@ for the programmatic analysis API.
 
 ```bash
 # Fetch, then export CSVs, separately:
-github-analysis fetch  --org example-org --period last-year --cache-dir cache
-github-analysis report --org example-org --cache-dir cache --output-dir reports
+ghinsight fetch  --org example-org --period last-year --cache-dir cache
+ghinsight report --org example-org --cache-dir cache --output-dir reports
 
 # Print a table to the terminal:
-github-analysis show usage repositories --org example-org --cache-dir cache
+ghinsight show usage repositories --org example-org --cache-dir cache
 
 # Diff generated CSVs against a reference snapshot exported from GitHub:
-github-analysis compare reference-data reports
+ghinsight compare reference-data reports
 ```
 
 ## Config reference
@@ -133,7 +135,7 @@ organisation's billing usage page (the *summarized* report covers up to a year
 and breaks usage down by repository) and import it:
 
 ```bash
-github-analysis import-billing usage-report.csv --org example-org --cache-dir cache
+ghinsight import-billing usage-report.csv --org example-org --cache-dir cache
 ```
 
 This writes the same cache files as the API fetch, which then reuses them.

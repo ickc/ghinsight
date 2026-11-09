@@ -2,7 +2,7 @@
 
 This stage is deliberately *dumb*: it copies GitHub's JSON payloads to local
 files and does no interpretation. Keeping the cache as verbatim API responses
-means the typed parsing in :mod:`github_analysis.domain` is the single place
+means the typed parsing in :mod:`ghinsight.domain` is the single place
 where raw data becomes structured, and a cache can be re-parsed by a newer
 version of the code without re-hitting the network.
 
@@ -22,7 +22,7 @@ owner (billing managers get a 404), or, for a user account, the ``user`` token
 scope. Without that access :func:`fetch_billing_usage` logs a warning and caches
 nothing, and the analysis falls back to minutes estimated from job timings.
 Billing managers can import the report CSV instead
-(:func:`github_analysis.billing.import_usage_csv`).
+(:func:`ghinsight.billing.import_usage_csv`).
 """
 
 from __future__ import annotations
