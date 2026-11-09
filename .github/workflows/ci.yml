@@ -75,7 +75,7 @@ jobs:
           import json
           from pathlib import Path
 
-          from ghinsight.dataset import ActionsDataset
+          from ghinsight.actions.dataset import ActionsDataset
 
           org = __import__("os").environ["ORG"]
           dataset = ActionsDataset.from_cache(org, Path("cache"))
@@ -140,7 +140,7 @@ jobs:
           import os
           from pathlib import Path
 
-          from ghinsight.dataset import ActionsDataset
+          from ghinsight.actions.dataset import ActionsDataset
 
           dataset = ActionsDataset.from_cache(os.environ["GH_ACCOUNT"], Path("cache"))
           repos = {job.repo for job in dataset.jobs}
