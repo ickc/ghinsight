@@ -32,9 +32,9 @@ classifiers = [
 ghinsight = "ghinsight.cli:app"
 
 [project.urls]
-Homepage = "https://github.com/ickc/github-analysis"
-Repository = "https://github.com/ickc/github-analysis"
-Issues = "https://github.com/ickc/github-analysis/issues"
+Homepage = "https://github.com/ickc/ghinsight"
+Repository = "https://github.com/ickc/ghinsight"
+Issues = "https://github.com/ickc/ghinsight/issues"
 
 [dependency-groups]
 dev = [
