@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from ghinsight.domain import Job, Run, RunnerType, RuntimeOS, Visibility
+from ghinsight.actions.domain import Job, Run, RunnerType, RuntimeOS, Visibility
 
 
 def _job_payload(**overrides):

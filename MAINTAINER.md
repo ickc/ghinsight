@@ -74,7 +74,7 @@ pixi run check
 8. Verify the package page and install path:
 
 ```bash
-uv tool install --force ghinsight
+uv tool install --force 'ghinsight[actions]'
 ghinsight --help
 ```
 

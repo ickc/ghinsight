@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from ghinsight import fetch
+from ghinsight.actions import fetch
 
 
 def _stub_actions_api(monkeypatch, repo_payloads):

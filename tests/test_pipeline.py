@@ -7,13 +7,13 @@ from pathlib import Path
 
 import pandas as pd
 
-from ghinsight.analysis import billed_equivalent_by_os, summarize_usage
-from ghinsight.compare import main as compare_main
-from ghinsight.config import AnalysisConfig
-from ghinsight.csv_export import write_reports
-from ghinsight.dataset import ActionsDataset
-from ghinsight.metrics import performance_table, usage_table
-from ghinsight.report import build_dashboard
+from ghinsight.actions.analysis import billed_equivalent_by_os, summarize_usage
+from ghinsight.actions.compare import main as compare_main
+from ghinsight.actions.config import AnalysisConfig
+from ghinsight.actions.csv_export import write_reports
+from ghinsight.actions.dataset import ActionsDataset
+from ghinsight.actions.metrics import performance_table, usage_table
+from ghinsight.actions.report import build_dashboard
 
 from .synthetic import ORG, write_synthetic_billing, write_synthetic_cache
 

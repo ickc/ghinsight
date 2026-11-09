@@ -9,7 +9,7 @@ summary_json = "docs/summary.json"
 # Optional: also fetch GitHub's billing usage report, for the minutes GitHub
 # actually billed. The API appears to need an organisation owner; without that
 # access the fetch is skipped with a warning and the report uses estimates.
-# Billing managers can run `ghinsight import-billing` on the usage report
+# Billing managers can run `ghinsight actions import-billing` on the usage report
 # CSV from the billing pages instead.
 # billing = true
 

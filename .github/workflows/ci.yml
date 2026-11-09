@@ -62,11 +62,11 @@ jobs:
         run: uv sync --group dev
       - name: Fetch real Actions data (single repo) and build report
         run: |
-          uv run ghinsight fetch \
+          uv run ghinsight actions fetch \
             --org "$ORG" --repo "$REPO" --period last-year --cache-dir cache
-          uv run ghinsight report \
+          uv run ghinsight actions report \
             --org "$ORG" --cache-dir cache --output-dir reports
-          uv run ghinsight dashboard \
+          uv run ghinsight actions dashboard \
             --org "$ORG" --cache-dir cache \
             --output docs/index.html --summary docs/summary.json
       - name: Assert the pipeline produced non-empty results
@@ -129,11 +129,11 @@ jobs:
             exit 0
           fi
           export GITHUB_TOKEN="$GH_PAT"
-          uv run ghinsight fetch \
+          uv run ghinsight actions fetch \
             --org "$GH_ACCOUNT" --period last-3-months --cache-dir cache
-          uv run ghinsight report \
+          uv run ghinsight actions report \
             --org "$GH_ACCOUNT" --cache-dir cache --output-dir reports
-          uv run ghinsight dashboard \
+          uv run ghinsight actions dashboard \
             --org "$GH_ACCOUNT" --cache-dir cache \
             --output docs/index.html --summary docs/summary.json
           uv run python - <<'PY'

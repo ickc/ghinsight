@@ -1,13 +1,13 @@
-# Tutorial: the command line, start to finish
+# Tutorial: GitHub Actions from the command line
 
 This walkthrough takes you from nothing to a published HTML dashboard using only
-the `ghinsight` CLI. It mirrors the three pipeline stages: **fetch →
+the `ghinsight actions` commands. They mirror the three pipeline stages: **fetch →
 report → dashboard** (with `recreate` running all three at once).
 
 ## 1. Install and authenticate
 
 ```bash
-uv tool install ghinsight
+uv tool install 'ghinsight[actions]'
 ghinsight --help
 ```
 
@@ -55,7 +55,7 @@ an explicit `YYYY-MM-DD..YYYY-MM-DD` range.
 ## 3. Fetch raw data (stage 1)
 
 ```bash
-ghinsight fetch --org example-org --period last-year --cache-dir cache
+ghinsight actions fetch --org example-org --period last-year --cache-dir cache
 ```
 
 This caches verbatim API responses under `cache/example-org/<repo>/`, plus each
@@ -72,13 +72,13 @@ billing usage page instead (the summarized report covers up to a year) and
 import it into the same cache:
 
 ```bash
-ghinsight import-billing usage-report.csv --org example-org --cache-dir cache
+ghinsight actions import-billing usage-report.csv --org example-org --cache-dir cache
 ```
 
 ## 4. Export metric CSVs (stage 2/3)
 
 ```bash
-ghinsight report --org example-org --cache-dir cache --output-dir reports
+ghinsight actions report --org example-org --cache-dir cache --output-dir reports
 ```
 
 Produces GitHub-compatible CSVs::
@@ -91,13 +91,13 @@ reports/actions-performance-metrics/{workflows,jobs,repositories,runtime-os,runn
 Peek at a table without writing files:
 
 ```bash
-ghinsight show usage repositories --org example-org --cache-dir cache --top 10
+ghinsight actions show usage repositories --org example-org --cache-dir cache --top 10
 ```
 
 ## 5. Build the dashboard (stage 3)
 
 ```bash
-ghinsight dashboard --config analysis.toml
+ghinsight actions dashboard --config analysis.toml
 ```
 
 Writes the static dashboard to `docs/index.html` and machine-readable metadata
@@ -108,7 +108,7 @@ private repositories use the plan's included minutes.
 ## 6. Or do it all at once
 
 ```bash
-ghinsight recreate --config analysis.toml
+ghinsight actions recreate --config analysis.toml
 ```
 
 `recreate` runs fetch → report → dashboard from a single config. Useful flags:
@@ -125,7 +125,7 @@ If you have a reference snapshot exported from GitHub's UI, diff it against your
 generated CSVs:
 
 ```bash
-ghinsight compare reference-data reports
+ghinsight actions compare reference-data reports
 ```
 
 The comparison distinguishes genuine structural mismatches from expected

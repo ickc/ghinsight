@@ -75,7 +75,7 @@ def billing_monthly_usage(
     """Billing-report Actions minutes augmented with ``adj_billed``.
 
     ``billing_frame`` is :meth:`BillingUsage.actions_minutes_frame
-    <ghinsight.billing.BillingUsage.actions_minutes_frame>`. The result
+    <ghinsight.actions.billing.BillingUsage.actions_minutes_frame>`. The result
     has the same ``month``/``runtime_os``/``adj_billed`` columns as
     :func:`monthly_usage`, so the same monthly charts apply to it.
     """

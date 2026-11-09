@@ -1,15 +1,15 @@
 """GitHub's billing usage report, as an optional companion to the dataset.
 
-The :class:`~ghinsight.dataset.ActionsDataset` *estimates* billed minutes
+The :class:`~ghinsight.actions.dataset.ActionsDataset` *estimates* billed minutes
 from job timestamps. When the account's billing usage report has been cached
-(see :func:`ghinsight.fetch.fetch_billing_usage`), :class:`BillingUsage`
+(see :func:`ghinsight.actions.fetch.fetch_billing_usage`), :class:`BillingUsage`
 provides the minutes GitHub actually billed, per day, repository and SKU.
 
 The report is optional. :meth:`BillingUsage.from_cache` returns ``None`` when
 nothing was cached, and every consumer must treat that as "use the estimates
 only". There are two ways to cache it:
 
-* :func:`ghinsight.fetch.fetch_billing_usage`, via the REST API, which
+* :func:`ghinsight.actions.fetch.fetch_billing_usage`, via the REST API, which
   appears to admit organisation owners only (billing managers get a 404); or
 * :func:`import_usage_csv`, from the usage report CSV that billing managers can
   download from the organisation's billing pages (the *summarized* report

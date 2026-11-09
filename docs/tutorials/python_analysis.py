@@ -16,10 +16,10 @@
 # This notebook shows how to drive the first two pipeline stages and the start
 # of the third **programmatically**, then reproduce some of the report's
 # insights directly from the canonical intermediate representation,
-# {py:class}`~ghinsight.dataset.ActionsDataset`.
+# {py:class}`~ghinsight.actions.dataset.ActionsDataset`.
 #
 # In real use you would populate the cache with
-# `ghinsight fetch --org <name>` (which needs a GitHub token). So that this
+# `ghinsight actions fetch --org <name>` (which needs a GitHub token). So that this
 # page builds offline, we synthesise a tiny cache with the *same on-disk layout*
 # that `fetch` produces, then run the rest of the pipeline against it unchanged.
 
@@ -97,7 +97,7 @@ print("synthetic cache at", cache_dir)
 # every analysis below.
 
 # %%
-from ghinsight.dataset import ActionsDataset
+from ghinsight.actions.dataset import ActionsDataset
 
 dataset = ActionsDataset.from_cache(ORG, cache_dir)
 print(f"{len(dataset.jobs)} jobs, {len(dataset.runs)} runs")
@@ -107,7 +107,7 @@ dataset.hosted_jobs_frame[
 
 # %% [markdown]
 # Each row is one completed, GitHub-hosted job. Derived measures such as
-# `billed_minutes` come straight from the {py:class}`~ghinsight.domain.Job`
+# `billed_minutes` come straight from the {py:class}`~ghinsight.actions.domain.Job`
 # record's properties, so they are defined in exactly one place.
 
 # %% [markdown]
@@ -116,7 +116,7 @@ dataset.hosted_jobs_frame[
 # The same tables the CLI exports as CSVs are available as DataFrames.
 
 # %%
-from ghinsight.metrics import performance_table, usage_table
+from ghinsight.actions.metrics import performance_table, usage_table
 
 usage_table(dataset, "repositories")
 
@@ -126,14 +126,14 @@ performance_table(dataset, "runtime-os")
 # %% [markdown]
 # ## Stage 3b — headline insights
 #
-# {py:func}`~ghinsight.analysis.summarize_usage` computes the KPI numbers
+# {py:func}`~ghinsight.actions.analysis.summarize_usage` computes the KPI numbers
 # shown on the dashboard cards. It needs an
-# {py:class}`~ghinsight.config.AnalysisConfig` for the OS multipliers and
+# {py:class}`~ghinsight.actions.config.AnalysisConfig` for the OS multipliers and
 # plan cap.
 
 # %%
-from ghinsight.analysis import billed_equivalent_by_os, summarize_usage
-from ghinsight.config import AnalysisConfig
+from ghinsight.actions.analysis import billed_equivalent_by_os, summarize_usage
+from ghinsight.actions.config import AnalysisConfig
 
 config = AnalysisConfig(
     org=ORG,
@@ -167,7 +167,7 @@ billed_equivalent_by_os(dataset, config.os_multipliers)
 # %%
 from IPython.display import HTML
 
-from ghinsight.charts import os_raw_vs_billed_bar
+from ghinsight.actions.charts import os_raw_vs_billed_bar
 
 fig = os_raw_vs_billed_bar(billed_equivalent_by_os(dataset, config.os_multipliers))
 # Render as HTML so the interactive chart embeds in the docs (myst-nb does not
@@ -178,11 +178,11 @@ HTML(fig.to_html(include_plotlyjs="cdn", full_html=False))
 # ## From insight to full report
 #
 # When you want the whole dashboard, hand the config to
-# {py:func}`~ghinsight.report.build_dashboard`, which writes the HTML and
+# {py:func}`~ghinsight.actions.report.build_dashboard`, which writes the HTML and
 # JSON summary and returns the metadata.
 
 # %%
-from ghinsight.report import build_dashboard
+from ghinsight.actions.report import build_dashboard
 
 metadata = build_dashboard(config)
 {k: metadata[k] for k in ("raw_total_minutes_period", "billed_equivalent_minutes_period")}

@@ -67,7 +67,7 @@ done
 UV="uv --project ${SUBMODULE_DIR} run"
 
 if [[ -n "${CONFIG}" ]]; then
-    ${UV} ghinsight recreate \
+    ${UV} ghinsight actions recreate \
         --config "${CONFIG}" \
         ${FORCE:+--force}
     exit 0
@@ -87,7 +87,7 @@ echo "  reports:      ${REPORTS_DIR}"
 echo ""
 
 echo "--- Step 1: fetch raw data for ${ORG} ---"
-${UV} ghinsight fetch \
+${UV} ghinsight actions fetch \
     --org "${ORG}" \
     --period "${PERIOD}" \
     --cache-dir "${CACHE_DIR}" \
@@ -95,7 +95,7 @@ ${UV} ghinsight fetch \
 
 echo ""
 echo "--- Step 2: generate reports ---"
-${UV} ghinsight report \
+${UV} ghinsight actions report \
     --org "${ORG}" \
     --cache-dir "${CACHE_DIR}" \
     --output-dir "${REPORTS_DIR}"

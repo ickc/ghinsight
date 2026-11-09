@@ -2,7 +2,7 @@
 
 :class:`ActionsDataset` is the single source of truth for the analysis. It holds
 the org's jobs and runs as typed, immutable records (see
-:mod:`ghinsight.domain`) and exposes them as *tidy* pandas DataFrames —
+:mod:`ghinsight.actions.domain`) and exposes them as *tidy* pandas DataFrames —
 one row per job, one row per run — via cached properties.
 
 **Why a tidy per-job table instead of GitHub-style aggregate CSVs?**
@@ -14,7 +14,7 @@ raw cache to draw its monthly charts. A tidy per-job table keeps every measure
 and dimension at full resolution, so *every* downstream view — the GitHub-style
 aggregate tables **and** the time series — is a pure projection of this one
 object. The aggregate CSVs become an export (see
-:mod:`ghinsight.csv_export`), not the source of truth.
+:mod:`ghinsight.actions.csv_export`), not the source of truth.
 """
 
 from __future__ import annotations
@@ -98,7 +98,7 @@ class ActionsDataset:
     Construct it with :meth:`from_cache`. The DataFrame views are computed once
     and memoised, so repeated metric calls share the same frames.
 
-    ``visibility`` maps repo name to its :class:`~ghinsight.domain.Visibility`
+    ``visibility`` maps repo name to its :class:`~ghinsight.actions.domain.Visibility`
     at fetch time; repos without cached metadata are ``UNKNOWN``.
     """
 

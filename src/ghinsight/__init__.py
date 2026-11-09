@@ -1,41 +1,32 @@
-"""GitHub Actions metrics analysis library.
+"""ghinsight (pronounced "gin-sight"): reusable tools for GitHub analysis.
 
-A three-stage, functional pipeline:
+The core needs only httpx2 and typer:
 
-1. **fetch** (:mod:`ghinsight.fetch`) — cache raw runs/jobs from GitHub.
-2. **dataset** (:mod:`ghinsight.dataset`) — parse the cache into the
-   canonical tidy intermediate representation, :class:`ActionsDataset`.
-3. **analysis** — derive metric tables (:mod:`ghinsight.metrics`),
-   insights (:mod:`ghinsight.analysis`), and a report
-   (:mod:`ghinsight.report`) — all pure projections of the dataset.
+- :mod:`ghinsight.client`: GitHub REST/GraphQL client and token resolution;
+- :mod:`ghinsight.repos`: repositories of an organisation or user;
+- :mod:`ghinsight.activity`: a user's issue and pull request activity.
+
+:mod:`ghinsight.actions` (GitHub Actions usage and performance, with a
+dashboard) needs the ``actions`` extra: ``pip install 'ghinsight[actions]'``.
 """
 
 from __future__ import annotations
 
-from .analysis import UsageSummary, summarize_usage
-from .config import AnalysisConfig, DateRange, load_config, parse_period
-from .csv_export import write_reports
-from .dataset import ActionsDataset
-from .domain import Job, Run, RunnerType, RuntimeOS, Visibility
-from .metrics import performance_table, usage_table
-from .report import build_dashboard, render_html
+from importlib.metadata import PackageNotFoundError, version
+
+from .client import GitHubClient, GitHubError, resolve_token
+from .repos import RepoInfo, list_repos
+
+try:
+    __version__ = version("ghinsight")
+except PackageNotFoundError:  # pragma: no cover - running from a bare checkout
+    __version__ = "0+unknown"
 
 __all__ = [
-    "ActionsDataset",
-    "AnalysisConfig",
-    "DateRange",
-    "Job",
-    "Run",
-    "RunnerType",
-    "RuntimeOS",
-    "UsageSummary",
-    "Visibility",
-    "build_dashboard",
-    "load_config",
-    "parse_period",
-    "performance_table",
-    "render_html",
-    "summarize_usage",
-    "usage_table",
-    "write_reports",
+    "GitHubClient",
+    "GitHubError",
+    "RepoInfo",
+    "__version__",
+    "list_repos",
+    "resolve_token",
 ]

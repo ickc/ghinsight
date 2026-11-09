@@ -25,4 +25,4 @@ echo "  reference: ${REF_DIR}"
 echo "  generated: ${GEN_DIR}"
 echo ""
 
-${UV} ghinsight compare "${REF_DIR}" "${GEN_DIR}"
+${UV} ghinsight actions compare "${REF_DIR}" "${GEN_DIR}"

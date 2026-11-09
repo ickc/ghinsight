@@ -191,9 +191,11 @@ class GitHubClient:
         params: Mapping[str, Any] | None = None,
         json: Any = None,
         retry_on_rate_limit: bool = True,
+        retries: int | None = None,
     ) -> httpx2.Response:
-        for attempt in range(self.retries + 1):
-            last = attempt == self.retries
+        retries = self.retries if retries is None else retries
+        for attempt in range(retries + 1):
+            last = attempt == retries
             try:
                 response = self._http.request(method, url, params=params, json=json)
             except httpx2.TransportError as exc:
@@ -265,15 +267,26 @@ class GitHubClient:
 
     # -- GraphQL -----------------------------------------------------------
 
-    def graphql(self, query: str, variables: Mapping[str, Any] | None = None) -> dict[str, Any]:
+    def graphql(
+        self,
+        query: str,
+        variables: Mapping[str, Any] | None = None,
+        *,
+        retries: int | None = None,
+    ) -> dict[str, Any]:
         """Run a GraphQL query and return its ``data``.
+
+        ``retries`` overrides the client's retry count for this call, e.g. ``0``
+        for a caller that reacts to a server timeout by asking for less.
 
         Raises:
             GitHubError: on HTTP failure, or when the response carries ``errors``.
         """
         # api.github.com/graphql, or {host}/api/graphql beside GHES's {host}/api/v3.
         url = f"{self.base_url.removesuffix('/v3')}/graphql"
-        response = self._send("POST", url, json={"query": query, "variables": dict(variables or {})})
+        response = self._send(
+            "POST", url, json={"query": query, "variables": dict(variables or {})}, retries=retries
+        )
         payload = response.json()
         if payload.get("errors"):
             messages = "; ".join(str(e.get("message", e)) for e in payload["errors"])
