@@ -1,6 +1,6 @@
 # Design
 
-`github-analysis` is built as a **three-stage pipeline** with a strong
+`ghinsight` is built as a **three-stage pipeline** with a strong
 functional bias: immutable data, pure transformations, and function signatures
 that state their contracts through type hints. This page explains the stages,
 the central design decision (the intermediate representation), and the
@@ -10,33 +10,36 @@ conventions that keep the code auditable.
 
 ```text
         GitHub REST API
-              │  (fetch, network)
+              │  (fetch, network: ghinsight.client)
               ▼
-   ┌─────────────────────┐
+   ┌──────────────────────┐
    │  Stage 1: raw cache  │   verbatim JSON on disk
-   │  github_analysis.fetch│   {cache}/{org}/{repo}/runs.json, jobs/{id}.json,
-   │                       │   repo.json; {cache}/_billing/{org}/{month}.json
-   └─────────────────────┘
+   │  ghinsight.actions.fetch     │   {cache}/{org}/{repo}/runs.json, jobs/{id}.json,
+   │                      │   repo.json; {cache}/_billing/{org}/{month}.json
+   └──────────────────────┘
               │  (parse, pure)
               ▼
-   ┌──────────────────────────────┐
-   │  Stage 2: the canonical IR     │   ActionsDataset
-   │  github_analysis.dataset       │   tidy per-job + per-run tables
-   └──────────────────────────────┘
+   ┌─────────────────────────────┐
+   │  Stage 2: the canonical IR  │   ActionsDataset
+   │  ghinsight.actions.dataset          │   tidy per-job + per-run tables
+   └─────────────────────────────┘
               │  (project, pure)
               ▼
-   ┌───────────────────────────────────────────────┐
-   │  Stage 3: analysis                              │
-   │  metrics  → GitHub-style usage/performance tables│
-   │  analysis → KPIs + monthly time series          │
-   │  report   → HTML dashboard + JSON summary       │
-   │  csv_export → GitHub-compatible CSV projection  │
-   └───────────────────────────────────────────────┘
+   ┌──────────────────────────────────────────────────────┐
+   │  Stage 3: analysis                                   │
+   │  metrics    → GitHub-style usage/performance tables  │
+   │  analysis   → KPIs + monthly time series             │
+   │  report     → HTML dashboard + JSON summary          │
+   │  csv_export → GitHub-compatible CSV projection       │
+   └──────────────────────────────────────────────────────┘
 ```
 
-### Stage 1 — fetch (`github_analysis.fetch`)
+### Stage 1 — fetch (`ghinsight.actions.fetch`)
 
-The only stage that touches the network. It is deliberately *dumb*: it copies
+The only stage that touches the network, through {py:mod}`ghinsight.client`
+(a small httpx2-based client for the REST and GraphQL APIs, with rate-limit
+waits and retries) and {py:mod}`ghinsight.repos` (listing an organisation's or
+user's repositories). It is deliberately *dumb*: it copies
 GitHub's JSON payloads to local files and interprets nothing. Keeping the cache
 as verbatim API responses means:
 
@@ -44,31 +47,31 @@ as verbatim API responses means:
   definition of every derived quantity; and
 - an existing cache can be re-parsed by newer code without re-fetching.
 
-### Stage 2 — the dataset (`github_analysis.dataset`)
+### Stage 2 — the dataset (`ghinsight.actions.dataset`)
 
 Raw payloads are parsed once, at the boundary, into frozen
-{py:class}`~github_analysis.domain.Job` and {py:class}`~github_analysis.domain.Run`
-records (see {py:mod}`github_analysis.domain`). Every derived measure —
+{py:class}`~ghinsight.actions.domain.Job` and {py:class}`~ghinsight.actions.domain.Run`
+records (see {py:mod}`ghinsight.actions.domain`). Every derived measure —
 durations, billed minutes, OS classification, failure flags — is a pure
 `property` on the record, so the rule "a billed minute is `ceil(run_ms / 60000)`"
 lives next to the data, not scattered across the analysis.
 
 These records are assembled into the **canonical intermediate representation**,
-{py:class}`~github_analysis.dataset.ActionsDataset`: an immutable object exposing
+{py:class}`~ghinsight.actions.dataset.ActionsDataset`: an immutable object exposing
 *tidy* DataFrames (one row per job, one row per run) via `cached_property`.
 
 ### Stage 3 — analysis
 
 Everything here is a **pure projection** of the dataset:
 
-- {py:mod}`github_analysis.metrics` reproduces GitHub's *Usage* and
+- {py:mod}`ghinsight.actions.metrics` reproduces GitHub's *Usage* and
   *Performance* tables, described declaratively by `TableSpec`s.
-- {py:mod}`github_analysis.analysis` derives billed-equivalent minutes, the
+- {py:mod}`ghinsight.actions.analysis` derives billed-equivalent minutes, the
   plan-cap projection, and monthly time-series, returning plain DataFrames and
-  an immutable {py:class}`~github_analysis.analysis.UsageSummary`.
-- {py:mod}`github_analysis.charts` turns those frames into Plotly figures
+  an immutable {py:class}`~ghinsight.actions.analysis.UsageSummary`.
+- {py:mod}`ghinsight.actions.charts` turns those frames into Plotly figures
   (pure `data -> Figure`).
-- {py:mod}`github_analysis.report` assembles the HTML/JSON; it contains no
+- {py:mod}`ghinsight.actions.report` assembles the HTML/JSON; it contains no
   metric maths of its own.
 
 ## The intermediate representation: why it changed
@@ -93,9 +96,9 @@ failure flag) at full resolution. Consequently:
   time-series — is a pure projection of one object. Nothing reaches back to the
   cache.
 - The GitHub-compatible CSVs still exist, but as an **export**
-  ({py:mod}`github_analysis.csv_export`), not the source of truth. They remain so
+  ({py:mod}`ghinsight.actions.csv_export`), not the source of truth. They remain so
   that generated output can be diffed against GitHub's own exports with
-  {py:mod}`github_analysis.compare`.
+  {py:mod}`ghinsight.actions.compare`.
 
 This is the standard "tidy data" trade-off: store data in its most granular,
 long form and aggregate on demand, rather than committing early to a lossy
@@ -107,11 +110,11 @@ Two inputs enrich the dataset but are never required:
 
 - **Repository visibility** (`repo.json`, trimmed from the repository listing)
   becomes a `visibility` column on the job table.
-  {py:meth}`~github_analysis.dataset.ActionsDataset.private_only` projects the
+  {py:meth}`~ghinsight.actions.dataset.ActionsDataset.private_only` projects the
   dataset onto repositories that can use the plan quota, and the report builds
   each minute chart twice and joins the two with
-  {py:func}`~github_analysis.charts.scope_toggle`.
-- **The billing usage report** ({py:class}`~github_analysis.billing.BillingUsage`)
+  {py:func}`~ghinsight.actions.charts.scope_toggle`.
+- **The billing usage report** ({py:class}`~ghinsight.actions.billing.BillingUsage`)
   holds the minutes GitHub actually billed. It sits beside the dataset rather
   than inside it, since it is per day and per SKU rather than per job. It is
   fetched from the REST API (organisation owners) or imported from the usage
@@ -127,7 +130,7 @@ in its limitations.
 
 ## Functional conventions
 
-- **Immutability.** Records and {py:class}`~github_analysis.config.AnalysisConfig`
+- **Immutability.** Records and {py:class}`~ghinsight.actions.config.AnalysisConfig`
   are `frozen` dataclasses; overrides are explicit
   {py:func}`dataclasses.replace`. Records also use `slots` for compactness; the
   dataset omits `slots` only because `cached_property` needs an instance dict.

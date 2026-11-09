@@ -20,9 +20,9 @@ GEN_DIR="${2:-${SUBMODULE_DIR}/reports}"
 
 UV="uv --project ${SUBMODULE_DIR} run"
 
-echo "=== github-analysis: verify ==="
+echo "=== ghinsight: verify ==="
 echo "  reference: ${REF_DIR}"
 echo "  generated: ${GEN_DIR}"
 echo ""
 
-${UV} github-analysis compare "${REF_DIR}" "${GEN_DIR}"
+${UV} ghinsight actions compare "${REF_DIR}" "${GEN_DIR}"

@@ -9,7 +9,7 @@
 
 ```bash
 uv run python ...
-uv run github-analysis ...
+uv run ghinsight ...
 pixi run check
 ```
 
@@ -21,7 +21,16 @@ pixi run check
 
 ## Architecture (post-refactor)
 
-- Three functional stages: `fetch` (network) → `dataset` (the canonical tidy
+- Layout: the core (`client.py`, `repos.py`, `activity.py`, `cli.py`) needs
+  only httpx2 and typer. `ghinsight.actions` (the Actions pipeline and its
+  dashboard) needs the `actions` extra (pandas, plotly, rich); nothing in the
+  core may import it at module level. Keep `[project.dependencies]`, the
+  `actions` extra and `[tool.pixi.dependencies]` in step.
+- All GitHub API access goes through `client.py` (httpx2; `GitHubClient`,
+  `GitHubError`, `resolve_token`) and `repos.py` (`RepoInfo`, account repo
+  listing). Keep these two modules light and stable: other packages (e.g.
+  repo-secret-scan) depend on them, so they must not import pandas/plotly.
+- `ghinsight.actions` has three functional stages: `fetch` (network) → `dataset` (the canonical tidy
   IR, `ActionsDataset`) → analysis (`metrics`, `analysis`, `charts`, `report`).
 - The intermediate representation is a tidy per-job table, not GitHub's
   aggregate CSVs. CSVs are an export (`csv_export`) for `compare` only.

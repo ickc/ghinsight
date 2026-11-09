@@ -67,7 +67,7 @@ done
 UV="uv --project ${SUBMODULE_DIR} run"
 
 if [[ -n "${CONFIG}" ]]; then
-    ${UV} github-analysis recreate \
+    ${UV} ghinsight actions recreate \
         --config "${CONFIG}" \
         ${FORCE:+--force}
     exit 0
@@ -79,7 +79,7 @@ if [[ -z "${ORG}" ]]; then
     exit 2
 fi
 
-echo "=== github-analysis: recreate metrics ==="
+echo "=== ghinsight: recreate metrics ==="
 echo "  org:          ${ORG}"
 echo "  period:       ${PERIOD}"
 echo "  cache:        ${CACHE_DIR}"
@@ -87,7 +87,7 @@ echo "  reports:      ${REPORTS_DIR}"
 echo ""
 
 echo "--- Step 1: fetch raw data for ${ORG} ---"
-${UV} github-analysis fetch \
+${UV} ghinsight actions fetch \
     --org "${ORG}" \
     --period "${PERIOD}" \
     --cache-dir "${CACHE_DIR}" \
@@ -95,7 +95,7 @@ ${UV} github-analysis fetch \
 
 echo ""
 echo "--- Step 2: generate reports ---"
-${UV} github-analysis report \
+${UV} ghinsight actions report \
     --org "${ORG}" \
     --cache-dir "${CACHE_DIR}" \
     --output-dir "${REPORTS_DIR}"

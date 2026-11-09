@@ -1,47 +1,33 @@
-# github-analysis
+# ghinsight
 
-Reusable, auditable tools for analyzing GitHub Actions usage and performance
-across any GitHub organization **or user account**.
+*Pronounced "gin-sight": the h is silent.*
 
-The package fetches workflow-run and job data from the GitHub REST API, caches
-the raw JSON locally, parses it into a single typed **intermediate
-representation**, and derives every report — GitHub-style metric tables,
-headline KPIs, and a static HTML dashboard — as a pure projection of that
-representation. It is organization-agnostic: org/user names, output paths, and
-billing assumptions live in your config file.
+Reusable tools for analysing GitHub organisations and user accounts:
 
-## Architecture
+| Part | Install | What it does |
+| ---- | ------- | ------------ |
+| `ghinsight activity` | core | Markdown table of a user's issue and PR activity over a date range |
+| `ghinsight actions` | `[actions]` extra | GitHub Actions usage and performance: cached fetch, metric CSVs, HTML dashboard |
+| `ghinsight.client`, `ghinsight.repos` | core | A small GitHub REST/GraphQL client and repository listing, for other tools to build on |
 
-A three-stage, functional pipeline (see the [design docs](docs/design.md) for
-the full rationale):
-
-| Stage | Module | Output |
-| ----- | ------ | ------ |
-| 1. Fetch | `github_analysis.fetch` | cached raw JSON (verbatim API responses) |
-| 2. Dataset (the IR) | `github_analysis.dataset` | `ActionsDataset` — a tidy per-job / per-run table |
-| 3a. Metric tables | `github_analysis.metrics` | usage / performance DataFrames |
-| 3b. Insights | `github_analysis.analysis` | `UsageSummary`, monthly time-series |
-| 3c. Report | `github_analysis.report` | HTML dashboard + JSON summary |
-
-The canonical intermediate representation is a **tidy per-job table** (one row
-per job, with all derived measures and dimensions), not GitHub's aggregate CSV
-exports. Aggregate exports drop per-job timestamps, so they cannot support
-time-series views; the tidy table can, and every other view derives from it.
-GitHub-compatible CSVs are still produced as an *export*
-(`github_analysis.csv_export`) for diffing against GitHub's own metrics.
+The core depends only on [httpx2](https://github.com/pydantic/httpx2) and
+[typer](https://typer.tiangolo.com); the `actions` extra adds pandas, plotly and
+rich. Everything is organisation-agnostic: names, paths and billing assumptions
+are arguments or config.
 
 ## Install
 
 ```bash
-uv tool install github-analysis
-github-analysis --help
+uv tool install ghinsight              # core: activity
+uv tool install 'ghinsight[actions]'   # also: actions
+ghinsight --help
 ```
 
 For local development from a checkout:
 
 ```bash
-uv sync --group dev
-uv run github-analysis --help
+uv sync --group dev                    # includes the actions extra
+uv run ghinsight --help
 ```
 
 A conda-forge `pixi` environment is also provided:
@@ -54,22 +40,74 @@ pixi run test
 
 ## Authentication
 
-The CLI needs a GitHub token that can read Actions metadata for the target
-account. Use either:
+Every command needs a GitHub token. For `ghinsight actions`, it must be able to
+read Actions metadata for the target account. Use either:
 
 ```bash
-export GITHUB_TOKEN=...      # or GH_TOKEN
+export GH_TOKEN=...          # or GITHUB_TOKEN
 ```
 
-or login with the GitHub CLI (`gh auth login`); if `GITHUB_TOKEN`/`GH_TOKEN` are
-unset, the token is read from `~/.config/gh/hosts.yml`.
+or login with the GitHub CLI (`gh auth login`): if neither variable is set, the
+token comes from `gh auth token`, wherever `gh` stores it. `GITHUB_API_URL` (set
+inside GitHub Actions) selects a GitHub Enterprise Server API.
 
-## Quick start
+## Issue and PR activity
+
+```bash
+ghinsight activity --repo my-org/some-repo --user octocat --from 2026-05-20 --to 2026-05-27
+ghinsight activity --org my-org --user octocat --from 2026-09-16 --to 2026-09-24 --output week.md
+```
+
+With `--org`, every repository of the organisation (or user) is searched and
+items are labelled `repo#123`. An issue or PR is listed when, within the range,
+it was:
+
+- opened by `--user`;
+- closed or merged, and either authored or closed/merged by `--user`;
+- authored by `--user` earlier and updated by them (comments, commits,
+  force-pushes, draft/ready changes, review requests), even if still open;
+- reviewed by `--user` (someone else's PR; the type shows approved, changes
+  requested or reviewed).
+
+`--authored-only` drops the last category and PRs closed/merged by `--user`
+that they did not author. Date ranges with more than 1,000 search results are
+split automatically; long ranges across a large organisation are slower, since
+every item closed in the range is fetched to check who closed it.
+
+## GitHub Actions usage and performance
+
+`ghinsight actions` fetches workflow-run and job data from the GitHub REST API,
+caches the raw JSON locally, parses it into a single typed **intermediate
+representation**, and derives every report — GitHub-style metric tables,
+headline KPIs, and a static HTML dashboard — as a pure projection of that
+representation.
+
+### Architecture
+
+A three-stage, functional pipeline (see the [design docs](docs/design.md) for
+the full rationale):
+
+| Stage | Module | Output |
+| ----- | ------ | ------ |
+| 1. Fetch | `ghinsight.actions.fetch` | cached raw JSON (verbatim API responses) |
+| 2. Dataset (the IR) | `ghinsight.actions.dataset` | `ActionsDataset` — a tidy per-job / per-run table |
+| 3a. Metric tables | `ghinsight.actions.metrics` | usage / performance DataFrames |
+| 3b. Insights | `ghinsight.actions.analysis` | `UsageSummary`, monthly time-series |
+| 3c. Report | `ghinsight.actions.report` | HTML dashboard + JSON summary |
+
+The canonical intermediate representation is a **tidy per-job table** (one row
+per job, with all derived measures and dimensions), not GitHub's aggregate CSV
+exports. Aggregate exports drop per-job timestamps, so they cannot support
+time-series views; the tidy table can, and every other view derives from it.
+GitHub-compatible CSVs are still produced as an *export*
+(`ghinsight.actions.csv_export`) for diffing against GitHub's own metrics.
+
+### Quick start
 
 ```bash
 mkdir github-actions-report && cd github-actions-report
 $EDITOR analysis.toml          # see examples/analysis.toml
-github-analysis recreate --config analysis.toml
+ghinsight actions recreate --config analysis.toml
 ```
 
 `recreate` runs fetch → CSV export → dashboard end to end. The dashboard is
@@ -78,21 +116,21 @@ written to `docs/index.html` and machine-readable metadata to
 step-by-step version and the [Python tutorial](docs/tutorials/python_analysis.py)
 for the programmatic analysis API.
 
-## Other commands
+### Other commands
 
 ```bash
 # Fetch, then export CSVs, separately:
-github-analysis fetch  --org example-org --period last-year --cache-dir cache
-github-analysis report --org example-org --cache-dir cache --output-dir reports
+ghinsight actions fetch  --org example-org --period last-year --cache-dir cache
+ghinsight actions report --org example-org --cache-dir cache --output-dir reports
 
 # Print a table to the terminal:
-github-analysis show usage repositories --org example-org --cache-dir cache
+ghinsight actions show usage repositories --org example-org --cache-dir cache
 
 # Diff generated CSVs against a reference snapshot exported from GitHub:
-github-analysis compare reference-data reports
+ghinsight actions compare reference-data reports
 ```
 
-## Config reference
+### Config reference
 
 See [examples/analysis.toml](examples/analysis.toml). `period` accepts
 `last-year`, `last-6-months`, `last-3-months`, `last-month`, or
@@ -107,7 +145,7 @@ See [examples/analysis.toml](examples/analysis.toml). `period` accepts
 `[os_multipliers]`: runtime OS billing multipliers for billed-equivalent
 estimates (defaults: linux 1, windows 2, macos 10).
 
-## Private-repository minutes and the billing report
+### Private-repository minutes and the billing report
 
 A plan's included minutes only apply to private (and internal) repositories:
 public repositories on standard GitHub-hosted runners are free. `fetch` records
@@ -133,7 +171,7 @@ organisation's billing usage page (the *summarized* report covers up to a year
 and breaks usage down by repository) and import it:
 
 ```bash
-github-analysis import-billing usage-report.csv --org example-org --cache-dir cache
+ghinsight actions import-billing usage-report.csv --org example-org --cache-dir cache
 ```
 
 This writes the same cache files as the API fetch, which then reuses them.
@@ -144,6 +182,22 @@ all, while a repository billed for months was made public only afterwards.
 The dashboard therefore shows billed minutes as they are, with no visibility
 filter; being as-billed, they also reflect each repository's visibility *at the
 time*, which the private-only estimates cannot.
+
+## Using the client from Python
+
+```python
+from ghinsight import GitHubClient, list_repos
+
+with GitHubClient() as gh:                      # token from GH_TOKEN, GITHUB_TOKEN or gh
+    repos = list_repos("my-org", gh)            # RepoInfo: slug, visibility, fork, archived, ...
+    runs = gh.paginate("/repos/my-org/some-repo/actions/runs", response_key="workflow_runs")
+    viewer = gh.graphql("{ viewer { login } }")
+```
+
+`GitHubClient` waits out primary and secondary rate limits (up to
+`max_rate_limit_wait` seconds), retries server and network errors with backoff,
+and raises `GitHubError` (with `.status`) otherwise. For the authenticated user,
+`list_repos` includes private repositories, which `/users/{user}/repos` omits.
 
 ## Development
 

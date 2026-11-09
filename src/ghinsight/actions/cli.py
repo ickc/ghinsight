@@ -1,4 +1,4 @@
-"""Command-line interface for github-analysis.
+"""The ``ghinsight actions`` commands: GitHub Actions usage and performance.
 
 The CLI is intentionally thin: each command parses arguments, builds an
 immutable config or dataset, and delegates to the library. The three pipeline
@@ -31,7 +31,7 @@ from .fetch import fetch_billing_usage, fetch_org, fetch_repo
 from .metrics import PERFORMANCE_TABLES, USAGE_TABLES
 from .report import build_dashboard
 
-app = typer.Typer(help="GitHub Actions metrics analysis CLI.", add_completion=False)
+app = typer.Typer(help="GitHub Actions usage and performance analysis.", no_args_is_help=True)
 console = Console()
 
 
@@ -81,7 +81,7 @@ def _fetch_billing(org: str, cache_dir: Path, date_range: DateRange, *, force: b
     if months is None:
         console.print(
             "[yellow]Billing usage report unavailable[/yellow] (the API appears to "
-            "need an org owner); billing managers can use 'import-billing' instead."
+            "need an org owner); billing managers can use 'ghinsight actions import-billing' instead."
         )
     else:
         console.print(f"[green]Done[/green]: billing usage for {len(months)} months")
@@ -124,7 +124,7 @@ def report(
     """Export usage and/or performance metric CSVs from the cache (stage 2/3)."""
     dataset = ActionsDataset.from_cache(org, cache_dir)
     if dataset.is_empty:
-        console.print("[yellow]No cached data — run 'fetch' first.[/yellow]")
+        console.print("[yellow]No cached data — run 'ghinsight actions fetch' first.[/yellow]")
         raise typer.Exit(1)
     try:
         paths = write_reports(dataset, output_dir, _metric(metric))
@@ -271,7 +271,7 @@ def show(
     dataset = ActionsDataset.from_cache(org, cache_dir)
     frame = table_fns[table](dataset).head(top)
     if frame.empty:
-        console.print("[yellow]No data — have you run 'fetch' yet?[/yellow]")
+        console.print("[yellow]No data — have you run 'ghinsight actions fetch' yet?[/yellow]")
         return
 
     rich_table = Table(title=f"{metric} / {table} — {org} (top {top})")
@@ -281,6 +281,3 @@ def show(
         rich_table.add_row(*[str(v) for v in row])
     console.print(rich_table)
 
-
-if __name__ == "__main__":  # pragma: no cover
-    app()

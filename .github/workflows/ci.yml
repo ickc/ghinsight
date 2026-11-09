@@ -62,11 +62,11 @@ jobs:
         run: uv sync --group dev
       - name: Fetch real Actions data (single repo) and build report
         run: |
-          uv run github-analysis fetch \
+          uv run ghinsight actions fetch \
             --org "$ORG" --repo "$REPO" --period last-year --cache-dir cache
-          uv run github-analysis report \
+          uv run ghinsight actions report \
             --org "$ORG" --cache-dir cache --output-dir reports
-          uv run github-analysis dashboard \
+          uv run ghinsight actions dashboard \
             --org "$ORG" --cache-dir cache \
             --output docs/index.html --summary docs/summary.json
       - name: Assert the pipeline produced non-empty results
@@ -75,7 +75,7 @@ jobs:
           import json
           from pathlib import Path
 
-          from github_analysis.dataset import ActionsDataset
+          from ghinsight.actions.dataset import ActionsDataset
 
           org = __import__("os").environ["ORG"]
           dataset = ActionsDataset.from_cache(org, Path("cache"))
@@ -129,18 +129,18 @@ jobs:
             exit 0
           fi
           export GITHUB_TOKEN="$GH_PAT"
-          uv run github-analysis fetch \
+          uv run ghinsight actions fetch \
             --org "$GH_ACCOUNT" --period last-3-months --cache-dir cache
-          uv run github-analysis report \
+          uv run ghinsight actions report \
             --org "$GH_ACCOUNT" --cache-dir cache --output-dir reports
-          uv run github-analysis dashboard \
+          uv run ghinsight actions dashboard \
             --org "$GH_ACCOUNT" --cache-dir cache \
             --output docs/index.html --summary docs/summary.json
           uv run python - <<'PY'
           import os
           from pathlib import Path
 
-          from github_analysis.dataset import ActionsDataset
+          from ghinsight.actions.dataset import ActionsDataset
 
           dataset = ActionsDataset.from_cache(os.environ["GH_ACCOUNT"], Path("cache"))
           repos = {job.repo for job in dataset.jobs}

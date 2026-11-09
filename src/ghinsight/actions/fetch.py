@@ -2,7 +2,7 @@
 
 This stage is deliberately *dumb*: it copies GitHub's JSON payloads to local
 files and does no interpretation. Keeping the cache as verbatim API responses
-means the typed parsing in :mod:`github_analysis.domain` is the single place
+means the typed parsing in :mod:`ghinsight.actions.domain` is the single place
 where raw data becomes structured, and a cache can be re-parsed by a newer
 version of the code without re-hitting the network.
 
@@ -22,7 +22,7 @@ owner (billing managers get a 404), or, for a user account, the ``user`` token
 scope. Without that access :func:`fetch_billing_usage` logs a warning and caches
 nothing, and the analysis falls back to minutes estimated from job timings.
 Billing managers can import the report CSV instead
-(:func:`github_analysis.billing.import_usage_csv`).
+(:func:`ghinsight.actions.billing.import_usage_csv`).
 """
 
 from __future__ import annotations
@@ -35,10 +35,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from ._api import github_api, github_api_paginate
+from ..client import GitHubError, github_api, github_api_paginate
 from .config import DateRange
 from .domain import utcnow
-from github.GithubException import GithubException
+from ..repos import list_account_repos
 
 log = logging.getLogger(__name__)
 
@@ -104,21 +104,6 @@ def _read_json(path: Path) -> Any:
 # ---------------------------------------------------------------------------
 # API calls (network)
 # ---------------------------------------------------------------------------
-
-
-def list_account_repos(account: str) -> list[dict[str, Any]]:
-    """All repositories for an organization *or* a user account.
-
-    ``account`` may name either; the org endpoint is tried first and, on a 404
-    (i.e. it is a user, not an org), the user endpoint is used. Which repos are
-    returned depends on the token's visibility into ``account``.
-    """
-    try:
-        return github_api_paginate(f"/orgs/{account}/repos", type="all")
-    except GithubException as exc:
-        if exc.status == 404:
-            return github_api_paginate(f"/users/{account}/repos", type="all")
-        raise
 
 
 # Backwards-compatible alias.
@@ -314,7 +299,7 @@ def fetch_billing_usage(
             try:
                 items = get_billing_usage(endpoints[0], month)
                 break
-            except GithubException as exc:
+            except GitHubError as exc:
                 if exc.status not in _BILLING_UNAVAILABLE:
                     raise
                 log.debug("Billing usage unavailable at %s: %s", endpoints[0], exc.status)

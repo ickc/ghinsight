@@ -1,13 +1,13 @@
-"""GitHub Actions metrics analysis library.
+"""GitHub Actions usage and performance analysis (the ``actions`` extra).
 
 A three-stage, functional pipeline:
 
-1. **fetch** (:mod:`github_analysis.fetch`) — cache raw runs/jobs from GitHub.
-2. **dataset** (:mod:`github_analysis.dataset`) — parse the cache into the
+1. **fetch** (:mod:`ghinsight.actions.fetch`) — cache raw runs/jobs from GitHub.
+2. **dataset** (:mod:`ghinsight.actions.dataset`) — parse the cache into the
    canonical tidy intermediate representation, :class:`ActionsDataset`.
-3. **analysis** — derive metric tables (:mod:`github_analysis.metrics`),
-   insights (:mod:`github_analysis.analysis`), and a report
-   (:mod:`github_analysis.report`) — all pure projections of the dataset.
+3. **analysis** — derive metric tables (:mod:`ghinsight.actions.metrics`),
+   insights (:mod:`ghinsight.actions.analysis`), and a report
+   (:mod:`ghinsight.actions.report`) — all pure projections of the dataset.
 """
 
 from __future__ import annotations

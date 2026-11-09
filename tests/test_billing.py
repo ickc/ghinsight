@@ -7,12 +7,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
-from github.GithubException import GithubException
 
-from github_analysis import fetch
-from github_analysis.billing import BillingUsage
-from github_analysis.config import DateRange
-from github_analysis.domain import BillingUsageItem, RuntimeOS, Visibility
+from ghinsight.actions import fetch
+from ghinsight.client import GitHubError
+from ghinsight.actions.billing import BillingUsage
+from ghinsight.actions.config import DateRange
+from ghinsight.actions.domain import BillingUsageItem, RuntimeOS, Visibility
 
 from .synthetic import ORG, write_synthetic_billing
 
@@ -74,7 +74,7 @@ def test_fetch_billing_usage_without_access_returns_none(
 
     def fake_get(endpoint, month):
         calls.append(endpoint)
-        raise GithubException(404, {"message": "Not Found"}, None)
+        raise GitHubError(404, "Not Found")
 
     monkeypatch.setattr(fetch, "get_billing_usage", fake_get)
 
@@ -89,10 +89,10 @@ def test_fetch_billing_usage_without_access_returns_none(
 
 def test_fetch_billing_usage_reraises_other_errors(monkeypatch, tmp_path: Path, frozen_now):
     def fake_get(endpoint, month):
-        raise GithubException(500, {"message": "boom"}, None)
+        raise GitHubError(500, "boom")
 
     monkeypatch.setattr(fetch, "get_billing_usage", fake_get)
-    with pytest.raises(GithubException):
+    with pytest.raises(GitHubError):
         fetch.fetch_billing_usage("some-org", tmp_path, PERIOD)
 
 
@@ -120,7 +120,7 @@ def test_billing_usage_respects_date_range(tmp_path: Path):
 
 
 def test_config_billing_flag(tmp_path: Path):
-    from github_analysis.config import load_config
+    from ghinsight.actions.config import load_config
 
     config_file = tmp_path / "analysis.toml"
     config_file.write_text('[analysis]\norg = "x"\n', encoding="utf-8")
@@ -146,7 +146,7 @@ _CSV = (
 
 
 def test_import_usage_csv_matches_api_cache(tmp_path: Path):
-    from github_analysis.billing import import_usage_csv
+    from ghinsight.actions.billing import import_usage_csv
 
     csv_file = tmp_path / "usage.csv"
     csv_file.write_text(_CSV, encoding="utf-8")
@@ -183,7 +183,7 @@ def test_import_usage_csv_matches_api_cache(tmp_path: Path):
 def test_import_billing_cli(tmp_path: Path):
     from typer.testing import CliRunner
 
-    from github_analysis.cli import app
+    from ghinsight.cli import app
 
     csv_file = tmp_path / "usage.csv"
     csv_file.write_text(_CSV, encoding="utf-8")
@@ -191,12 +191,12 @@ def test_import_billing_cli(tmp_path: Path):
     runner = CliRunner()
 
     result = runner.invoke(
-        app, ["import-billing", str(csv_file), "--org", ORG, "--cache-dir", str(cache)]
+        app, ["actions", "import-billing", str(csv_file), "--org", ORG, "--cache-dir", str(cache)]
     )
     assert result.exit_code == 0, result.output
     assert "2 months" in result.output
 
     result = runner.invoke(
-        app, ["import-billing", str(csv_file), "--org", "nobody", "--cache-dir", str(cache)]
+        app, ["actions", "import-billing", str(csv_file), "--org", "nobody", "--cache-dir", str(cache)]
     )
     assert result.exit_code == 1

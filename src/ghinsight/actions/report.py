@@ -1,8 +1,8 @@
 """Stage 3c — assemble the static HTML dashboard and JSON summary.
 
 This module is a thin *assembler*: it loads the dataset, asks
-:mod:`github_analysis.analysis` for the numbers, asks
-:mod:`github_analysis.charts` for the figures, and stitches them into HTML. It
+:mod:`ghinsight.actions.analysis` for the numbers, asks
+:mod:`ghinsight.actions.charts` for the figures, and stitches them into HTML. It
 deliberately contains no metric maths of its own, so the report's content is
 auditable in the analysis layer and only its *presentation* lives here.
 """
@@ -642,7 +642,7 @@ def build_dashboard(config: AnalysisConfig) -> dict[str, Any]:
     if dataset.is_empty:
         raise FileNotFoundError(
             f"No cached job data found under {config.cache_dir / config.org}. "
-            "Run 'github-analysis fetch' first."
+            "Run 'ghinsight actions fetch' first."
         )
     billing = BillingUsage.from_cache(config.org, config.cache_dir, config.date_range)
 
