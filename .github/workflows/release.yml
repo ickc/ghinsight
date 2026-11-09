@@ -24,6 +24,8 @@ jobs:
           path: dist/
 
   publish:
+    # Disabled until PyPI trusted publishing is set up and the package name is final.
+    if: ${{ false }}
     needs: build
     runs-on: ubuntu-latest
     environment: pypi
