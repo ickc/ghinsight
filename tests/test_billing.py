@@ -7,9 +7,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
-from github.GithubException import GithubException
 
 from ghinsight import fetch
+from ghinsight.client import GitHubError
 from ghinsight.billing import BillingUsage
 from ghinsight.config import DateRange
 from ghinsight.domain import BillingUsageItem, RuntimeOS, Visibility
@@ -74,7 +74,7 @@ def test_fetch_billing_usage_without_access_returns_none(
 
     def fake_get(endpoint, month):
         calls.append(endpoint)
-        raise GithubException(404, {"message": "Not Found"}, None)
+        raise GitHubError(404, "Not Found")
 
     monkeypatch.setattr(fetch, "get_billing_usage", fake_get)
 
@@ -89,10 +89,10 @@ def test_fetch_billing_usage_without_access_returns_none(
 
 def test_fetch_billing_usage_reraises_other_errors(monkeypatch, tmp_path: Path, frozen_now):
     def fake_get(endpoint, month):
-        raise GithubException(500, {"message": "boom"}, None)
+        raise GitHubError(500, "boom")
 
     monkeypatch.setattr(fetch, "get_billing_usage", fake_get)
-    with pytest.raises(GithubException):
+    with pytest.raises(GitHubError):
         fetch.fetch_billing_usage("some-org", tmp_path, PERIOD)
 
 

@@ -15,8 +15,8 @@ The CLI needs a GitHub token that can read Actions metadata for the target
 account. Provide one of:
 
 ```bash
-export GITHUB_TOKEN=...        # or GH_TOKEN
-# or: gh auth login            # token is read from ~/.config/gh/hosts.yml
+export GH_TOKEN=...            # or GITHUB_TOKEN
+# or: gh auth login            # the token then comes from `gh auth token`
 ```
 
 ## 2. Create a project and config

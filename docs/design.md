@@ -10,33 +10,36 @@ conventions that keep the code auditable.
 
 ```text
         GitHub REST API
-              │  (fetch, network)
+              │  (fetch, network: ghinsight.client)
               ▼
-   ┌─────────────────────┐
+   ┌──────────────────────┐
    │  Stage 1: raw cache  │   verbatim JSON on disk
-   │  ghinsight.fetch│   {cache}/{org}/{repo}/runs.json, jobs/{id}.json,
-   │                       │   repo.json; {cache}/_billing/{org}/{month}.json
-   └─────────────────────┘
+   │  ghinsight.fetch     │   {cache}/{org}/{repo}/runs.json, jobs/{id}.json,
+   │                      │   repo.json; {cache}/_billing/{org}/{month}.json
+   └──────────────────────┘
               │  (parse, pure)
               ▼
-   ┌──────────────────────────────┐
-   │  Stage 2: the canonical IR     │   ActionsDataset
-   │  ghinsight.dataset       │   tidy per-job + per-run tables
-   └──────────────────────────────┘
+   ┌─────────────────────────────┐
+   │  Stage 2: the canonical IR  │   ActionsDataset
+   │  ghinsight.dataset          │   tidy per-job + per-run tables
+   └─────────────────────────────┘
               │  (project, pure)
               ▼
-   ┌───────────────────────────────────────────────┐
-   │  Stage 3: analysis                              │
-   │  metrics  → GitHub-style usage/performance tables│
-   │  analysis → KPIs + monthly time series          │
-   │  report   → HTML dashboard + JSON summary       │
-   │  csv_export → GitHub-compatible CSV projection  │
-   └───────────────────────────────────────────────┘
+   ┌──────────────────────────────────────────────────────┐
+   │  Stage 3: analysis                                   │
+   │  metrics    → GitHub-style usage/performance tables  │
+   │  analysis   → KPIs + monthly time series             │
+   │  report     → HTML dashboard + JSON summary          │
+   │  csv_export → GitHub-compatible CSV projection       │
+   └──────────────────────────────────────────────────────┘
 ```
 
 ### Stage 1 — fetch (`ghinsight.fetch`)
 
-The only stage that touches the network. It is deliberately *dumb*: it copies
+The only stage that touches the network, through {py:mod}`ghinsight.client`
+(a small httpx2-based client for the REST and GraphQL APIs, with rate-limit
+waits and retries) and {py:mod}`ghinsight.repos` (listing an organisation's or
+user's repositories). It is deliberately *dumb*: it copies
 GitHub's JSON payloads to local files and interprets nothing. Keeping the cache
 as verbatim API responses means:
 

@@ -60,11 +60,12 @@ The CLI needs a GitHub token that can read Actions metadata for the target
 account. Use either:
 
 ```bash
-export GITHUB_TOKEN=...      # or GH_TOKEN
+export GH_TOKEN=...          # or GITHUB_TOKEN
 ```
 
-or login with the GitHub CLI (`gh auth login`); if `GITHUB_TOKEN`/`GH_TOKEN` are
-unset, the token is read from `~/.config/gh/hosts.yml`.
+or login with the GitHub CLI (`gh auth login`): if neither variable is set, the
+token comes from `gh auth token`, wherever `gh` stores it. `GITHUB_API_URL` (set
+inside GitHub Actions) selects a GitHub Enterprise Server API.
 
 ## Quick start
 

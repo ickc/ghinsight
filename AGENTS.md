@@ -21,6 +21,10 @@ pixi run check
 
 ## Architecture (post-refactor)
 
+- All GitHub API access goes through `client.py` (httpx2; `GitHubClient`,
+  `GitHubError`, `resolve_token`) and `repos.py` (`RepoInfo`, account repo
+  listing). Keep these two modules light and stable: other packages (e.g.
+  repo-secret-scan) depend on them, so they must not import pandas/plotly.
 - Three functional stages: `fetch` (network) → `dataset` (the canonical tidy
   IR, `ActionsDataset`) → analysis (`metrics`, `analysis`, `charts`, `report`).
 - The intermediate representation is a tidy per-job table, not GitHub's

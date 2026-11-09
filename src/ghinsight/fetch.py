@@ -35,10 +35,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from ._api import github_api, github_api_paginate
+from .client import GitHubError, github_api, github_api_paginate
 from .config import DateRange
 from .domain import utcnow
-from github.GithubException import GithubException
+from .repos import list_account_repos
 
 log = logging.getLogger(__name__)
 
@@ -104,21 +104,6 @@ def _read_json(path: Path) -> Any:
 # ---------------------------------------------------------------------------
 # API calls (network)
 # ---------------------------------------------------------------------------
-
-
-def list_account_repos(account: str) -> list[dict[str, Any]]:
-    """All repositories for an organization *or* a user account.
-
-    ``account`` may name either; the org endpoint is tried first and, on a 404
-    (i.e. it is a user, not an org), the user endpoint is used. Which repos are
-    returned depends on the token's visibility into ``account``.
-    """
-    try:
-        return github_api_paginate(f"/orgs/{account}/repos", type="all")
-    except GithubException as exc:
-        if exc.status == 404:
-            return github_api_paginate(f"/users/{account}/repos", type="all")
-        raise
 
 
 # Backwards-compatible alias.
@@ -314,7 +299,7 @@ def fetch_billing_usage(
             try:
                 items = get_billing_usage(endpoints[0], month)
                 break
-            except GithubException as exc:
+            except GitHubError as exc:
                 if exc.status not in _BILLING_UNAVAILABLE:
                     raise
                 log.debug("Billing usage unavailable at %s: %s", endpoints[0], exc.status)
